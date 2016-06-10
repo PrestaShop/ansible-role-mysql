@@ -55,7 +55,6 @@
     recurse: yes
   when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql' and ansible_os_family == 'Debian'
 
-
 - name: Set ownership on slow query log file (if configured).
   file:
     path: "{{ mysql_slow_query_log_file }}"
