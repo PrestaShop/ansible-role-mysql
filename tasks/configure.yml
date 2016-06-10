@@ -42,6 +42,20 @@
     mode:  0755
     setype: mysqld_db_t
 
+- name: Copy Mysql files to new location if needed
+  shell: "cp -ra /var/lib/mysql/*  {{ mysql_datadir }}/."
+  when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql' and ansible_os_family == 'Debian'
+
+- name: "Change files permission on {{ mysql_datadir }}" 
+  file: 
+    dest: "{{ mysql_datadir }}" 
+    state: directory 
+    owner: "mysql" 
+    group: "mysql" 
+    recurse: yes
+  when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql' and ansible_os_family == 'Debian'
+
+
 - name: Set ownership on slow query log file (if configured).
   file:
     path: "{{ mysql_slow_query_log_file }}"
