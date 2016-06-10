@@ -21,6 +21,18 @@
   service: "name={{ mysql_daemon }} state=stopped"
   when: mysql_installed.stat.exists == false
 
-- name: Delete innodb log files created by apt package after initial install.
+- name: Delete innodb log files created by apt package after initial install in default dir
+  shell: "rm -f /var/lib/ib_logfile[01]"
+  when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql'
+
+- name: Delete innodb log files in target directory
   shell: "rm -f {{ mysql_datadir }}/ib_logfile[01]"
   when: mysql_installed.stat.exists == false
+
+- name: Copy Mysql files to new location if needed
+  shell: "cp -ra /var/lib/mysql/*  {{ mysql_datadir }}/."
+  when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql'
+
+- name: "Change files permission on {{ mysql_datadir }}" 
+  file: dest="{{ mysql_datadir }}" state=directory owner="mysql" group="mysql" recurse=yes
+  when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql'
