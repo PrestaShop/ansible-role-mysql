@@ -34,5 +34,10 @@
   when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql'
 
 - name: "Change files permission on {{ mysql_datadir }}" 
-  file: dest="{{ mysql_datadir }}" state=directory owner="mysql" group="mysql" recurse=yes
+  file: 
+    dest: "{{ mysql_datadir }}" 
+    state: directory 
+    owner: "mysql" 
+    group: "mysql" 
+    recurse: yes
   when: mysql_installed.stat.exists == false and mysql_datadir != '/var/lib/mysql'
