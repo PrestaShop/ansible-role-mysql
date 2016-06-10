@@ -64,6 +64,23 @@
     mode: 0640
   when: mysql_log == "" and mysql_log_error != ""
 
+ - name: "Set Alias for new mysql location"
+   lineinfile: 
+     dest: "/etc/apparmor.d/tunables/alias"
+     line: "alias /var/lib/mysql/ -> {{ mysql_datadir }}/,"
+   when: ansible_os_family == 'Debian' and mysql_datadir != '/var/lib/mysql'
+
+ - name: "Replace authorisation in apparmor"
+   replace: 
+     dest: "/etc/apparmor.d/usr.sbin.mysqld" 
+     regexp: "/var/lib/mysql/" 
+     replace: "{{ mysql_datadir }}/"
+   when: ansible_os_family == 'Debian' and mysql_datadir != '/var/lib/mysql'
+
+ - name: "Reload apparmor"
+   service: name=apparmor state=reloaded
+   when: ansible_os_family == 'Debian' and mysql_datadir != '/var/lib/mysql'
+
 - name: Ensure MySQL is started and enabled on boot.
   service: "name={{ mysql_daemon }} state=restarted enabled={{ mysql_enabled_on_startup }}"
   register: mysql_service_configuration
